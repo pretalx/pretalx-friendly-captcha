@@ -1,0 +1,6 @@
+recursive-include pretalx_friendlycaptcha/static *
+recursive-include pretalx_friendlycaptcha/templates *
+exclude pretalx_friendlycaptcha/locale/django.pot
+recursive-include pretalx_friendlycaptcha/locale *
+recursive-include pretalx_friendlycaptcha *.py
+include Makefile
