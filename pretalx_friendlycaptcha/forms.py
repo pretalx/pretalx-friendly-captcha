@@ -1,4 +1,3 @@
-
 from i18nfield.forms import I18nModelForm
 
 from .models import FriendlycaptchaSettings
@@ -12,6 +11,5 @@ class FriendlycaptchaSettingsForm(I18nModelForm):
 
     class Meta:
         model = FriendlycaptchaSettings
-        fields = ("some_setting", )
+        fields = ("site_key",)
         widgets = {}
-

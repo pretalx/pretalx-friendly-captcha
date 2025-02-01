@@ -1,9 +1,7 @@
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
-
 from pretalx.common.views.mixins import PermissionRequired
-
 
 from .forms import FriendlycaptchaSettingsForm
 
@@ -26,6 +24,7 @@ class FriendlycaptchaSettingsView(PermissionRequired, FormView):
 
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, _("The FriendlyCaptcha CfP step settings were updated."))
+        messages.success(
+            self.request, _("The FriendlyCaptcha CfP step settings were updated.")
+        )
         return super().form_valid(form)
-

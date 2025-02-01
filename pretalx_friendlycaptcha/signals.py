@@ -1,7 +1,5 @@
-
 from django.dispatch import receiver
 from django.urls import reverse
-
 from pretalx.orga.signals import nav_event_settings
 
 
@@ -11,7 +9,7 @@ def pretalx_friendlycaptcha_settings(sender, request, **kwargs):
         return []
     return [
         {
-            "label": "FriendlyCaptcha CfP step",
+            "label": "FriendlyCaptcha",
             "url": reverse(
                 "plugins:pretalx_friendlycaptcha:settings",
                 kwargs={"event": request.event.slug},
@@ -20,4 +18,3 @@ def pretalx_friendlycaptcha_settings(sender, request, **kwargs):
             == "plugins:pretalx_friendlycaptcha:settings",
         }
     ]
-
