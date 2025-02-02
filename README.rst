@@ -2,7 +2,8 @@ FriendlyCaptcha CfP step
 ==========================
 
 This is a plugin for `pretalx`_.
-Adds a new, final CfP step with the FriendlyCaptcha captcha, in order to reduce spam.
+It adds a new, final CfP step with the FriendlyCaptcha captcha, in order to reduce spam, using
+FriendlyCaptcha v0.9.17.
 
 Development setup
 -----------------
