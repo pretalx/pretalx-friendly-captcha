@@ -1,0 +1,17 @@
+{% extends "cfp/event/submission_base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% load rich_text %}
+
+{% block cfp_submission_header %}
+    <script type="module" src="{% static "pretalx_friendlycaptcha/widget.module.min.js" %}" async defer ></script>
+    <script nomodule src="{% static "pretalx_friendlycaptcha/widget.min.js" %}" async defer></script>
+{% endblock cfp_submission_header %}
+
+{% block inner %}
+    <div class="d-flex"><h2>{{ title }}</h2></div>
+    <p>{{ text|rich_text }}</p>
+
+    <div class="frc-captcha" data-sitekey="{{ captcha_site_key }}"></div>
+{% endblock inner %}
