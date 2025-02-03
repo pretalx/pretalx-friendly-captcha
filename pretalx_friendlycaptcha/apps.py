@@ -11,7 +11,9 @@ class PluginApp(AppConfig):
     class PretalxPluginMeta:
         name = gettext_lazy("FriendlyCaptcha CfP step")
         author = "Tobias Kunze"
-        description = gettext_lazy("Adds a new, final CfP step with the FriendlyCaptcha captcha, in order to reduce spam.")
+        description = gettext_lazy(
+            "Adds a new, final CfP step with the FriendlyCaptcha captcha, in order to reduce spam."
+        )
         visible = True
         version = __version__
         category = "INTEGRATION"
