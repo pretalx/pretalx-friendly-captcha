@@ -15,7 +15,7 @@ class FriendlycaptchaSettingsForm(I18nModelForm):
 
     class Meta:
         model = FriendlycaptchaSettings
-        fields = ("site_key",)
+        fields = ("secret", "site_key", "endpoint")
         widgets = {}
 
 

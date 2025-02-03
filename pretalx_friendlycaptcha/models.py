@@ -7,8 +7,15 @@ class FriendlycaptchaSettings(models.Model):
         on_delete=models.CASCADE,
         related_name="pretalx_friendlycaptcha_settings",
     )
-    secret = models.CharField(max_length=200, default="")
-    site_key = models.CharField(max_length=200, default="", null=True, blank=True)
+    secret = models.CharField(max_length=200, default="", verbose_name="API Key")
+    site_key = models.CharField(
+        max_length=200,
+        default="",
+        null=True,
+        blank=True,
+        verbose_name="Application key",
+        help_text="Create a new application and copy the string starting with FC…",
+    )
     endpoint = models.CharField(
         max_length=200,
         choices=[("US", "US"), ("EU", "EU")],
