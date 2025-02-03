@@ -22,10 +22,17 @@ class FriendlycaptchaSettingsForm(I18nModelForm):
 class FriendlyCaptchaCfpForm(forms.Form):
     frc_captcha_solution = forms.CharField()
 
+    def __init__(self, *args, event=None, from_storage=False, **kwargs):
+        self.event = event
+        self.from_storage = from_storage
+        super().__init__(*args, **kwargs)
+
     def clean_frc_captcha_solution(self):
         key = self.cleaned_data["frc_captcha_solution"]
         if not key:
             raise forms.ValidationError("Please solve the captcha.")
+        if self.from_storage and key == "valid":
+            return "valid"
         request_data = {
             "solution": key,
             "secret": self.event.pretalx_friendlycaptcha_settings.secret,
@@ -34,6 +41,7 @@ class FriendlyCaptchaCfpForm(forms.Form):
             request_data["sitekey"] = (
                 self.event.pretalx_friendlycaptcha_settings.site_key
             )
+        response_data = None
         try:
             response = requests.post(
                 self.event.pretalx_friendlycaptcha_settings.verify_url,
@@ -41,10 +49,11 @@ class FriendlyCaptchaCfpForm(forms.Form):
                 timeout=10,
             )
             response.raise_for_status()
-            # We don't look at the response content, as the docs state that in
-            # production, any 200 response is a success.
+            response_data = response.json()
         except Exception as e:
             raise forms.ValidationError("Could not verify captcha: {}".format(e))
+        if not response_data.get("success"):
+            raise forms.ValidationError("Captcha verification failed.")
         return "valid"
 
 
@@ -73,19 +82,23 @@ class FriendlyCaptchaCfpStep(FormFlowStep, GenericFlowStep):
         return ctx
 
     def get_form_kwargs(self):
-        return {}
+        return {"event": self.request.event}
 
-    def get_form(self, **kwargs):
-        if self.request.method == "POST":
+    def get_form(self, from_storage=False):
+        if self.request.method == "GET" or from_storage:
             return self.form_class(
-                data={
-                    "frc_captcha_solution": self.request.POST.get(
-                        "frc-captcha-solution"
-                    )
-                },
+                data=self.get_form_initial() if from_storage else None,
+                initial=self.get_form_initial(),
+                from_storage=from_storage,
                 **self.get_form_kwargs(),
             )
-        return super().get_form(**kwargs)
+        return self.form_class(
+            data={
+                "frc_captcha_solution": self.request.POST.get("frc-captcha-solution")
+            },
+            from_storage=from_storage,
+            **self.get_form_kwargs(),
+        )
 
     def get_csp_update(self, request):
         return {
