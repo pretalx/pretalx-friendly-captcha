@@ -25,6 +25,7 @@ class FriendlyCaptchaCfpForm(forms.Form):
     def __init__(self, *args, event=None, from_storage=False, **kwargs):
         self.event = event
         self.from_storage = from_storage
+        kwargs.pop("field_configuration", None)
         super().__init__(*args, **kwargs)
 
     def clean_frc_captcha_solution(self):
