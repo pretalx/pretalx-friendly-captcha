@@ -12,7 +12,7 @@ class PluginApp(AppConfig):
         name = gettext_lazy("FriendlyCaptcha CfP step")
         author = "Tobias Kunze"
         description = gettext_lazy(
-            "Adds a new, final CfP step with the FriendlyCaptcha captcha, in order to reduce spam."
+            "Adds a new, final CfP step with the FriendlyCaptcha captcha, in order to reduce spam. You need a FriendlyCaptcha account/subscription to use this plugin."
         )
         visible = True
         version = __version__
