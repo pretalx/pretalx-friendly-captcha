@@ -2,3 +2,6 @@
   display: block;
   margin: 0 auto 12px auto;
 }
+.frc-captcha + .form-group {
+  display: none;
+}
