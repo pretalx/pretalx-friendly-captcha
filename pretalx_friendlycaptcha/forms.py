@@ -20,7 +20,7 @@ class FriendlycaptchaSettingsForm(I18nModelForm):
 
 
 class FriendlyCaptchaCfpForm(forms.Form):
-    frc_captcha_solution = forms.CharField()
+    frc_captcha_solution = forms.CharField(required=False, widget=forms.HiddenInput)
 
     def __init__(self, *args, event=None, from_storage=False, **kwargs):
         self.event = event
