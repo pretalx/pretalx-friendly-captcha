@@ -7,7 +7,7 @@ from .forms import FriendlycaptchaSettingsForm
 
 
 class FriendlycaptchaSettingsView(PermissionRequired, FormView):
-    permission_required = "orga.change_settings"
+    permission_required = "event.update_event"
     template_name = "pretalx_friendlycaptcha/settings.html"
     form_class = FriendlycaptchaSettingsForm
 
