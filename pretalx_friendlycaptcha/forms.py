@@ -2,7 +2,7 @@ import requests
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from i18nfield.forms import I18nModelForm
-from pretalx.cfp.flow import FormFlowStep, GenericFlowStep
+from pretalx.cfp.flow import TemplateFlowStep
 
 from .models import FriendlycaptchaSettings
 
@@ -58,7 +58,7 @@ class FriendlyCaptchaCfpForm(forms.Form):
         return "valid"
 
 
-class FriendlyCaptchaCfpStep(FormFlowStep, GenericFlowStep):
+class FriendlyCaptchaCfpStep(TemplateFlowStep):
     identifier = "friendlycaptcha"
     icon = "puzzle-piece"
     form_class = FriendlyCaptchaCfpForm
