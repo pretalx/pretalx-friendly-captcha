@@ -1,6 +1,10 @@
 FriendlyCaptcha CfP step
 ==========================
 
+.. image:: https://raw.githubusercontent.com/pretalx/pretalx-friendlycaptcha/python-coverage-comment-action-data/badge.svg
+   :target: https://htmlpreview.github.io/?https://github.com/pretalx/pretalx-friendlycaptcha/blob/python-coverage-comment-action-data/htmlcov/index.html
+   :alt: Coverage
+
 This is a plugin for `pretalx`_.
 It adds a new, final CfP step with the FriendlyCaptcha captcha, in order to reduce spam, using
 FriendlyCaptcha v0.9.17.
