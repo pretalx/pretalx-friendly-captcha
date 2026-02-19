@@ -14,29 +14,24 @@ Development setup
 
 2. Clone this repository, eg to ``local/pretalx-friendlycaptcha``.
 
-3. Activate the virtual environment you use for pretalx development.
+3. Install the plugin and its development dependencies with ``uv pip install -e '.[dev]'``.
 
-4. Run ``pip install -e .`` within this directory to register this application with pretalx's plugin registry.
-
-5. Run ``make`` within this directory to compile translations.
-
-6. Restart your local pretalx server. This plugin should show up in the plugin list shown on startup in the console.
+4. Restart your local pretalx server. This plugin should show up in the plugin list shown on startup in the console.
    You can now use the plugin from this repository for your events by enabling it in the 'plugins' tab in the settings.
 
-This plugin has CI set up to enforce a few code style rules. To check locally, you need these packages installed::
+Code style
+----------
 
-    pip install flake8 flake8-bugbear isort black
+This plugin uses ruff for linting and formatting. To check and fix code style::
 
-To check your plugin for rule violations, run::
+    just fmt
 
-    black --check .
-    isort -c .
-    flake8 .
+Testing
+-------
 
-You can auto-fix some of these issues by running::
+To run the test suite::
 
-    isort .
-    black .
+    just test
 
 
 License

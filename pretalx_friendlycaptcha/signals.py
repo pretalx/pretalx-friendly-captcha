@@ -1,5 +1,6 @@
 from django.dispatch import receiver
 from django.urls import reverse
+
 from pretalx.cfp.signals import cfp_steps
 from pretalx.orga.signals import nav_event_settings
 
@@ -23,6 +24,6 @@ def pretalx_friendlycaptcha_settings(sender, request, **kwargs):
 
 @receiver(cfp_steps)
 def pretalx_friendlycaptcha_cfp_steps(sender, **kwargs):
-    from pretalx_friendlycaptcha.forms import FriendlyCaptchaCfpStep
+    from pretalx_friendlycaptcha.forms import FriendlyCaptchaCfpStep  # noqa: PLC0415
 
     return [FriendlyCaptchaCfpStep]

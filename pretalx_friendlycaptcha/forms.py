@@ -2,13 +2,13 @@ import requests
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from i18nfield.forms import I18nModelForm
+
 from pretalx.cfp.flow import TemplateFlowStep
 
 from .models import FriendlycaptchaSettings
 
 
 class FriendlycaptchaSettingsForm(I18nModelForm):
-
     def __init__(self, *args, event=None, **kwargs):
         self.instance, _ = FriendlycaptchaSettings.objects.get_or_create(event=event)
         super().__init__(*args, **kwargs, instance=self.instance, locales=event.locales)
@@ -52,7 +52,7 @@ class FriendlyCaptchaCfpForm(forms.Form):
             response.raise_for_status()
             response_data = response.json()
         except Exception as e:
-            raise forms.ValidationError("Could not verify captcha: {}".format(e))
+            raise forms.ValidationError(f"Could not verify captcha: {e}") from e
         if not response_data.get("success"):
             raise forms.ValidationError("Captcha verification failed.")
         return "valid"
