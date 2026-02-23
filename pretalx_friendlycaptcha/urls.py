@@ -9,5 +9,5 @@ urlpatterns = [
         rf"^orga/event/(?P<event>{SLUG_REGEX})/settings/p/pretalx_friendlycaptcha/$",
         FriendlycaptchaSettingsView.as_view(),
         name="settings",
-    ),
+    )
 ]

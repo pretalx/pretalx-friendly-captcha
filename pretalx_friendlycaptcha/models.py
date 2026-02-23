@@ -23,6 +23,9 @@ class FriendlycaptchaSettings(models.Model):
         help_text="If you are on the Advanced or Enterprise plan, you can set the location of the endpoint to EU.",
     )
 
+    def __str__(self):
+        return f"FriendlycaptchaSettings(event={self.event})"
+
     @property
     def base_url(self):
         if self.endpoint == "US":

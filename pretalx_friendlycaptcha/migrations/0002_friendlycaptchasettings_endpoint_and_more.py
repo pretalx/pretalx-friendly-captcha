@@ -4,9 +4,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ("pretalx_friendlycaptcha", "0001_initial"),
-    ]
+    dependencies = [("pretalx_friendlycaptcha", "0001_initial")]
 
     operations = [
         migrations.AddField(

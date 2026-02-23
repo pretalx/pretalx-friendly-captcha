@@ -18,7 +18,7 @@ class PluginApp(AppConfig):
         version = __version__
         category = "INTEGRATION"
         settings_links = [
-            (gettext_lazy("Settings"), "plugins:pretalx_friendlycaptcha:settings", {}),
+            (gettext_lazy("Settings"), "plugins:pretalx_friendlycaptcha:settings", {})
         ]
 
     def ready(self):
