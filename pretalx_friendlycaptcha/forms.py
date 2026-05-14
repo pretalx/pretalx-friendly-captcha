@@ -1,4 +1,4 @@
-import requests
+import urllib3
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from i18nfield.forms import I18nModelForm
@@ -42,16 +42,19 @@ class FriendlyCaptchaCfpForm(forms.Form):
             request_data["sitekey"] = (
                 self.event.pretalx_friendlycaptcha_settings.site_key
             )
-        response_data = None
         try:
-            response = requests.post(
+            response = urllib3.request(
+                "POST",
                 self.event.pretalx_friendlycaptcha_settings.verify_url,
                 json=request_data,
                 timeout=10,
             )
-            response.raise_for_status()
+            if response.status >= 400:
+                raise forms.ValidationError(
+                    f"Could not verify captcha: HTTP {response.status}"
+                )
             response_data = response.json()
-        except Exception as e:
+        except (urllib3.exceptions.HTTPError, OSError, ValueError) as e:
             raise forms.ValidationError(f"Could not verify captcha: {e}") from e
         if not response_data.get("success"):
             raise forms.ValidationError("Captcha verification failed.")

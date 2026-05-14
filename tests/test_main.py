@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+import urllib3
 from django.urls import reverse
 
 from pretalx_friendlycaptcha.forms import FriendlyCaptchaCfpForm
@@ -78,10 +79,10 @@ def test_captcha_form_accepts_valid_from_storage(event):
 def test_captcha_form_verifies_with_api(event):
     FriendlycaptchaSettings.objects.create(event=event, secret="s", site_key="k")
     mock_response = MagicMock()
+    mock_response.status = 200
     mock_response.json.return_value = {"success": True}
-    mock_response.raise_for_status = MagicMock()
     with patch(
-        "pretalx_friendlycaptcha.forms.requests.post", return_value=mock_response
+        "pretalx_friendlycaptcha.forms.urllib3.request", return_value=mock_response
     ) as mock_post:
         form = FriendlyCaptchaCfpForm(
             data={"frc_captcha_solution": "solution123"}, event=event
@@ -98,10 +99,10 @@ def test_captcha_form_verifies_with_api(event):
 def test_captcha_form_rejects_failed_verification(event):
     FriendlycaptchaSettings.objects.create(event=event, secret="s", site_key="k")
     mock_response = MagicMock()
+    mock_response.status = 200
     mock_response.json.return_value = {"success": False}
-    mock_response.raise_for_status = MagicMock()
     with patch(
-        "pretalx_friendlycaptcha.forms.requests.post", return_value=mock_response
+        "pretalx_friendlycaptcha.forms.urllib3.request", return_value=mock_response
     ):
         form = FriendlyCaptchaCfpForm(
             data={"frc_captcha_solution": "badsolution"}, event=event
@@ -113,7 +114,8 @@ def test_captcha_form_rejects_failed_verification(event):
 def test_captcha_form_handles_api_error(event):
     FriendlycaptchaSettings.objects.create(event=event, secret="s", site_key="k")
     with patch(
-        "pretalx_friendlycaptcha.forms.requests.post", side_effect=Exception("timeout")
+        "pretalx_friendlycaptcha.forms.urllib3.request",
+        side_effect=urllib3.exceptions.HTTPError("timeout"),
     ):
         form = FriendlyCaptchaCfpForm(
             data={"frc_captcha_solution": "solution123"}, event=event
@@ -126,10 +128,10 @@ def test_captcha_form_handles_api_error(event):
 def test_captcha_form_omits_sitekey_when_blank(event):
     FriendlycaptchaSettings.objects.create(event=event, secret="s", site_key="")
     mock_response = MagicMock()
+    mock_response.status = 200
     mock_response.json.return_value = {"success": True}
-    mock_response.raise_for_status = MagicMock()
     with patch(
-        "pretalx_friendlycaptcha.forms.requests.post", return_value=mock_response
+        "pretalx_friendlycaptcha.forms.urllib3.request", return_value=mock_response
     ) as mock_post:
         form = FriendlyCaptchaCfpForm(
             data={"frc_captcha_solution": "solution123"}, event=event
