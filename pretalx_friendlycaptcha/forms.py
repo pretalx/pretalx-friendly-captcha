@@ -3,7 +3,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from i18nfield.forms import I18nModelForm
 
-from pretalx.cfp.flow import TemplateFlowStep
+from pretalx.cfp.flow import FormFlowStep
 
 from .models import FriendlycaptchaSettings
 
@@ -61,7 +61,7 @@ class FriendlyCaptchaCfpForm(forms.Form):
         return "valid"
 
 
-class FriendlyCaptchaCfpStep(TemplateFlowStep):
+class FriendlyCaptchaCfpStep(FormFlowStep):
     identifier = "friendlycaptcha"
     icon = "puzzle-piece"
     form_class = FriendlyCaptchaCfpForm
@@ -89,17 +89,22 @@ class FriendlyCaptchaCfpStep(TemplateFlowStep):
         return {"event": self.request.event}
 
     def get_form(self, from_storage=False):
-        if self.request.method == "GET" or from_storage:
+        # A fresh POST carries the single-use solution token from the widget
+        # under a dashed field name; validate it against the API. All other
+        # cases (GET render, and the cached re-check on submit) reload the
+        # already-verified "valid" marker from session storage, so the
+        # single-use token is never sent to the API twice.
+        if self.request.method == "POST" and not from_storage:
             return self.form_class(
-                data=self.get_form_initial() if from_storage else None,
-                initial=self.get_form_initial(),
-                from_storage=from_storage,
+                data={
+                    "frc_captcha_solution": self.request.POST.get(
+                        "frc-captcha-solution"
+                    )
+                },
                 **self.get_form_kwargs(),
             )
         return self.form_class(
-            data={
-                "frc_captcha_solution": self.request.POST.get("frc-captcha-solution")
-            },
+            data=self.get_form_data() or None,
             from_storage=from_storage,
             **self.get_form_kwargs(),
         )
