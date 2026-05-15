@@ -2,15 +2,15 @@
 
 [Full report](https://htmlpreview.github.io/?https://github.com/pretalx/pretalx-friendly-captcha/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
-| Name                                     |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
-|----------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
-| pretalx\_friendlycaptcha/\_\_init\_\_.py |        1 |        0 |        0 |        0 |    100% |           |
-| pretalx\_friendlycaptcha/apps.py         |       15 |        0 |        0 |        0 |    100% |           |
-| pretalx\_friendlycaptcha/forms.py        |       67 |       11 |       10 |        0 |     83% |70, 74, 78, 81-83, 86, 89-96, 105 |
-| pretalx\_friendlycaptcha/models.py       |       17 |        0 |        2 |        0 |    100% |           |
-| pretalx\_friendlycaptcha/signals.py      |       12 |        1 |        2 |        0 |     93% |        29 |
-| pretalx\_friendlycaptcha/views.py        |       21 |        0 |        0 |        0 |    100% |           |
-| **TOTAL**                                |  **133** |   **12** |   **14** |    **0** | **90%** |           |
+| Name                                     |    Stmts |     Miss |   Branch |   BrPart |    Cover |   Missing |
+|----------------------------------------- | -------: | -------: | -------: | -------: | -------: | --------: |
+| pretalx\_friendlycaptcha/\_\_init\_\_.py |        1 |        0 |        0 |        0 |     100% |           |
+| pretalx\_friendlycaptcha/apps.py         |       15 |        0 |        0 |        0 |     100% |           |
+| pretalx\_friendlycaptcha/forms.py        |       67 |        0 |       12 |        0 |     100% |           |
+| pretalx\_friendlycaptcha/models.py       |       17 |        0 |        2 |        0 |     100% |           |
+| pretalx\_friendlycaptcha/signals.py      |       12 |        0 |        2 |        0 |     100% |           |
+| pretalx\_friendlycaptcha/views.py        |       21 |        0 |        0 |        0 |     100% |           |
+| **TOTAL**                                |  **133** |    **0** |   **16** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
