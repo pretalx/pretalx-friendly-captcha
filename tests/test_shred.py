@@ -2,6 +2,7 @@ import pytest
 from django_scopes import scopes_disabled
 
 from pretalx.event.domain.event import shred_event
+
 from pretalx_friendlycaptcha.models import FriendlycaptchaSettings
 
 
