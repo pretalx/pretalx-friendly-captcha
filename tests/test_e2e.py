@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django_scopes import scope, scopes_disabled
 
+from pretalx.person.enums import EmailVerificationState
 from pretalx.person.models import User
 from pretalx.submission.models import Submission, SubmissionStates
 
@@ -25,7 +26,10 @@ def _follow(client, url, method="POST", data=None):
 def submitter():
     with scopes_disabled():
         return User.objects.create_user(
-            email="speaker@example.org", password="speakerpassw0rd", name="Sam Speaker"
+            email="speaker@example.org",
+            password="speakerpassw0rd",
+            name="Sam Speaker",
+            email_verification_state=EmailVerificationState.VERIFIED,
         )
 
 
