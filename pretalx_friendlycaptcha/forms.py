@@ -8,6 +8,10 @@ from pretalx.cfp.flow import FormFlowStep
 from .models import FriendlycaptchaSettings
 
 
+def get_settings(event):
+    return FriendlycaptchaSettings.objects.get(event=event)
+
+
 class FriendlycaptchaSettingsForm(I18nModelForm):
     def __init__(self, *args, event=None, **kwargs):
         self.instance, _ = FriendlycaptchaSettings.objects.get_or_create(event=event)
@@ -34,20 +38,13 @@ class FriendlyCaptchaCfpForm(forms.Form):
             raise forms.ValidationError("Please solve the captcha.")
         if self.from_storage and key == "valid":
             return "valid"
-        request_data = {
-            "solution": key,
-            "secret": self.event.pretalx_friendlycaptcha_settings.secret,
-        }
-        if self.event.pretalx_friendlycaptcha_settings.site_key:
-            request_data["sitekey"] = (
-                self.event.pretalx_friendlycaptcha_settings.site_key
-            )
+        settings = get_settings(self.event)
+        request_data = {"solution": key, "secret": settings.secret}
+        if settings.site_key:
+            request_data["sitekey"] = settings.site_key
         try:
             response = urllib3.request(
-                "POST",
-                self.event.pretalx_friendlycaptcha_settings.verify_url,
-                json=request_data,
-                timeout=10,
+                "POST", settings.verify_url, json=request_data, timeout=10
             )
             if response.status >= 400:
                 raise forms.ValidationError(
@@ -82,7 +79,7 @@ class FriendlyCaptchaCfpStep(FormFlowStep):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["captcha_site_key"] = self.event.pretalx_friendlycaptcha_settings.site_key
+        ctx["captcha_site_key"] = get_settings(self.event).site_key
         return ctx
 
     def get_form_kwargs(self):
@@ -113,5 +110,5 @@ class FriendlyCaptchaCfpStep(FormFlowStep):
         return {
             "script-src": "'unsafe-eval'",
             "worker-src": "'self' 'unsafe-eval' blob:",
-            "connect-src": f"'self' {request.event.pretalx_friendlycaptcha_settings.puzzle_url}",
+            "connect-src": f"'self' {get_settings(request.event).puzzle_url}",
         }
