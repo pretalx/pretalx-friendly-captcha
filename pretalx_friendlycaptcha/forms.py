@@ -9,7 +9,10 @@ from .models import FriendlycaptchaSettings
 
 
 def get_settings(event):
-    return FriendlycaptchaSettings.objects.get(event=event)
+    # Do not fail if the plugin enabled but never configured
+    return FriendlycaptchaSettings.objects.filter(
+        event=event
+    ).first() or FriendlycaptchaSettings(event=event)
 
 
 class FriendlycaptchaSettingsForm(I18nModelForm):
@@ -76,6 +79,9 @@ class FriendlyCaptchaCfpStep(FormFlowStep):
     @property
     def _text(self):
         return ""
+
+    def is_applicable(self, request):
+        return bool(get_settings(self.event).secret)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

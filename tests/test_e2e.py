@@ -35,10 +35,6 @@ def submitter():
 
 @pytest.mark.django_db
 def test_e2e_cfp_submission_through_captcha_step(event, submitter, client):
-    # Full CfP wizard: info -> profile -> friendlycaptcha -> submitted.
-    # Regression guard for the broken base class: before the FormFlowStep
-    # fix, POSTing the captcha step raised NotImplementedError / 405 and a
-    # proposal could never be submitted while the plugin was enabled.
     FriendlycaptchaSettings.objects.create(event=event, secret="s", site_key="k")
     client.force_login(submitter)
 
@@ -70,13 +66,10 @@ def test_e2e_cfp_submission_through_captcha_step(event, submitter, client):
     )
     assert "/friendlycaptcha/" in captcha_url
 
-    # The captcha step renders the widget with the configured site key.
     response = client.get(captcha_url)
     assert response.status_code == 200
     assert 'data-sitekey="k"' in response.content.decode()
 
-    # Solving the captcha submits the single-use token under the dashed
-    # field name; the verification API is mocked to succeed.
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json.return_value = {"success": True}
@@ -88,8 +81,6 @@ def test_e2e_cfp_submission_through_captcha_step(event, submitter, client):
         )
 
     assert "/me/submissions/" in final_url
-    # The single-use token is verified exactly once: the final is_completed()
-    # re-check reuses the cached "valid" marker instead of re-hitting the API.
     mock_verify.assert_called_once()
     assert mock_verify.call_args.kwargs["json"]["solution"] == "the-token"
 
@@ -97,3 +88,36 @@ def test_e2e_cfp_submission_through_captcha_step(event, submitter, client):
         sub = Submission.objects.get(title="My captcha-protected talk")
         assert sub.state == SubmissionStates.SUBMITTED
         assert sub.speakers.filter(user=submitter).exists()
+
+
+@pytest.mark.django_db
+def test_e2e_cfp_skips_captcha_step_when_unconfigured(event, submitter, client):
+    client.force_login(submitter)
+    _, info_url = _follow(client, f"/{event.slug}/submit/", method="GET")
+    with scopes_disabled():
+        sub_type = event.cfp.default_type_id
+    info = {
+        "title": "My unprotected talk",
+        "content_locale": "en",
+        "description": "Description",
+        "abstract": "Abstract",
+        "notes": "Notes",
+        "slot_count": 1,
+        "submission_type": sub_type,
+        "additional_speaker": "",
+        "resource-TOTAL_FORMS": "0",
+        "resource-INITIAL_FORMS": "0",
+        "resource-MIN_NUM_FORMS": "0",
+        "resource-MAX_NUM_FORMS": "1000",
+    }
+    response, profile_url = _follow(client, info_url, data=info)
+    assert "/profile/" in profile_url
+    assert "/friendlycaptcha/" not in response.content.decode()
+
+    _, final_url = _follow(
+        client, profile_url, data={"name": "Sam Speaker", "biography": "Hi"}
+    )
+    assert "/me/submissions/" in final_url
+    with scope(event=event):
+        sub = Submission.objects.get(title="My unprotected talk")
+        assert sub.state == SubmissionStates.SUBMITTED

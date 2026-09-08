@@ -185,8 +185,6 @@ def test_cfp_step_get_form(event, method, from_storage):
     step.get_form_data = lambda: {"frc_captcha_solution": "valid"}
     form = step.get_form(from_storage=from_storage)
     assert isinstance(form, FriendlyCaptchaCfpForm)
-    # A fresh POST maps the dashed widget field; storage paths carry the
-    # from_storage flag so the cached "valid" token short-circuits.
     if method == "POST" and not from_storage:
         assert form.data["frc_captcha_solution"] == "abc"
         assert form.from_storage is False
@@ -196,10 +194,6 @@ def test_cfp_step_get_form(event, method, from_storage):
 
 @pytest.mark.django_db
 def test_cfp_step_is_completed_uses_cached_token(event):
-    # Regression: the step must inherit a working is_completed() from
-    # FormFlowStep. When the captcha was solved earlier, the cached "valid"
-    # marker is reloaded from storage and accepted without re-hitting the
-    # single-use-token API.
     FriendlycaptchaSettings.objects.create(event=event, secret="s", site_key="k")
     step = FriendlyCaptchaCfpStep(event=event)
     request = types.SimpleNamespace(event=event, method="POST", POST={})
@@ -234,3 +228,24 @@ def test_captcha_form_omits_sitekey_when_blank(event):
         )
         assert form.is_valid()
         assert "sitekey" not in mock_post.call_args.kwargs["json"]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("secret", "expected"), ((None, False), ("", False), ("s", True))
+)
+def test_cfp_step_applicable_only_with_secret(event, secret, expected):
+    if secret is not None:
+        FriendlycaptchaSettings.objects.create(event=event, secret=secret)
+    step = FriendlyCaptchaCfpStep(event=event)
+    assert step.is_applicable(types.SimpleNamespace(event=event)) is expected
+
+
+@pytest.mark.django_db
+def test_cfp_step_context_data_without_settings(event):
+    step = FriendlyCaptchaCfpStep(event=event)
+    with patch(
+        "pretalx_friendlycaptcha.forms.FormFlowStep.get_context_data", return_value={}
+    ):
+        ctx = step.get_context_data()
+    assert ctx["captcha_site_key"] == ""
