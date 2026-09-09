@@ -4,6 +4,11 @@ from unittest.mock import MagicMock, patch
 import pytest
 import urllib3
 from django.urls import reverse
+from django_scopes import scopes_disabled
+
+from pretalx.event.domain.event import copy_event_data, initialise_event
+from pretalx.event.domain.plugins import enable_plugin
+from pretalx.event.models import Event
 
 from pretalx_friendlycaptcha.forms import FriendlyCaptchaCfpForm, FriendlyCaptchaCfpStep
 from pretalx_friendlycaptcha.models import FriendlycaptchaSettings
@@ -249,3 +254,38 @@ def test_cfp_step_context_data_without_settings(event):
     ):
         ctx = step.get_context_data()
     assert ctx["captcha_site_key"] == ""
+
+
+def _copied_event(event):
+    with scopes_disabled():
+        new_event = Event.objects.create(
+            name="Copied event",
+            slug="copied",
+            email="orga@orga.org",
+            date_from=event.date_from,
+            date_to=event.date_to,
+            organiser=event.organiser,
+        )
+        initialise_event(new_event)
+        enable_plugin(new_event, "pretalx_friendlycaptcha")
+        copy_event_data(event=new_event, source=event)
+    return new_event
+
+
+@pytest.mark.django_db
+def test_event_copy_copies_settings(event):
+    FriendlycaptchaSettings.objects.create(
+        event=event, secret="s", site_key="k", endpoint="EU"
+    )
+    new_event = _copied_event(event)
+    new_settings = FriendlycaptchaSettings.objects.get(event=new_event)
+    assert new_settings.secret == "s"
+    assert new_settings.site_key == "k"
+    assert new_settings.endpoint == "EU"
+    assert FriendlycaptchaSettings.objects.filter(event=event).exists()
+
+
+@pytest.mark.django_db
+def test_event_copy_without_settings(event):
+    new_event = _copied_event(event)
+    assert not FriendlycaptchaSettings.objects.filter(event=new_event).exists()
