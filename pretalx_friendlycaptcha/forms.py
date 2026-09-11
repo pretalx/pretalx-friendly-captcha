@@ -38,7 +38,7 @@ class FriendlyCaptchaCfpForm(forms.Form):
     def clean_frc_captcha_solution(self):
         key = self.cleaned_data["frc_captcha_solution"]
         if not key:
-            raise forms.ValidationError("Please solve the captcha.")
+            raise forms.ValidationError(_("Please solve the captcha."))
         if self.from_storage and key == "valid":
             return "valid"
         settings = get_settings(self.event)
@@ -51,13 +51,13 @@ class FriendlyCaptchaCfpForm(forms.Form):
             )
             if response.status >= 400:
                 raise forms.ValidationError(
-                    f"Could not verify captcha: HTTP {response.status}"
+                    _("Could not verify captcha:") + f" HTTP {response.status}"
                 )
             response_data = response.json()
         except (urllib3.exceptions.HTTPError, OSError, ValueError) as e:
-            raise forms.ValidationError(f"Could not verify captcha: {e}") from e
+            raise forms.ValidationError(_("Could not verify captcha:") + f" {e}") from e
         if not response_data.get("success"):
-            raise forms.ValidationError("Captcha verification failed.")
+            raise forms.ValidationError(_("Captcha verification failed."))
         return "valid"
 
 
